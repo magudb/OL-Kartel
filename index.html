@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ØL 2026 — Sommerlege</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="crt">
+    <div id="app">
+
+      <!-- TITLE -->
+      <section id="screen-title" class="screen active">
+        <div class="title-art">
+          <div class="title-beer">ØL</div>
+          <h1>SOMMERLEGE 2026</h1>
+          <p class="tagline">DIT SPIL · 7 DISCIPLINER · ÉN RESULTATKODE</p>
+        </div>
+        <div class="menu">
+          <button class="pixel-btn primary" data-action="solo-setup">SPIL SPILLET</button>
+          <button class="pixel-btn" data-action="resume-solo" id="resume-solo" hidden>FORTSÆT MIT SPIL</button>
+          <button class="pixel-btn" data-action="open-practice" id="practice-entry" hidden>TEST ET SPIL</button>
+          <button class="pixel-btn" data-action="open-collector">SAML RESULTATER</button>
+          <button class="pixel-btn" data-action="how-to">REGLER</button>
+        </div>
+        <p class="footer-hint">SPIL NÅR DU VIL · DEL DIN RESULTATKODE · FIND TABEREN</p>
+      </section>
+
+      <!-- HOW TO -->
+      <section id="screen-howto" class="screen">
+        <h2>REGLER</h2>
+        <div class="howto-body">
+          <p>SPIL ALLE 7 DISCIPLINER I DIT EGET TEMPO.</p>
+          <p>BRUG SAMME TURNERINGSKODE SOM DINE VENNER.</p>
+          <p>DEL DIN RESULTATKODE, NÅR DU ER FÆRDIG.</p>
+          <p>SAML 2–8 RESULTATKODER FOR AT FINDE SLUTSTILLINGEN.</p>
+          <p>FÆRDIGE DISCIPLINER GEMMES I DENNE BROWSER.</p>
+          <p>PLACERING GIVER OMVENDT PODIEPOINT:</p>
+          <p class="highlight">1. PLADS = FLEST POINT · SIDSTE = 1 POINT</p>
+          <p>LAVESTE SAMLEDE POINT = DEN STORE TABER.</p>
+          <hr />
+          <p class="small">STYRING: TASTER + MELLEMRUM. SE DEN ENKELTE DISCIPLIN.</p>
+        </div>
+        <button class="pixel-btn" data-action="to-title">TILBAGE</button>
+      </section>
+
+      <!-- INDEPENDENT PLAYER SETUP -->
+      <section id="screen-solo" class="screen">
+        <h2>DIT SPIL</h2>
+        <p class="sub">7 DISCIPLINER I DIT EGET TEMPO. DEL ÉN KODE TIL SIDST.</p>
+        <form id="solo-form" class="async-form">
+          <label for="solo-name">DIT NAVN</label>
+          <input id="solo-name" name="name" maxlength="12" autocomplete="nickname" required />
+          <label for="solo-tournament">TURNERINGSKODE</label>
+          <input id="solo-tournament" name="tournament" maxlength="40" value="OL-2026" required />
+          <p class="small">AFTAL KODEN MED DINE VENNER. ALLE SKAL BRUGE DEN SAMME.</p>
+          <p id="solo-error" class="form-status" role="alert"></p>
+          <button class="pixel-btn primary" type="submit">START MIT SPIL</button>
+        </form>
+        <button class="pixel-btn" data-action="to-title">TILBAGE</button>
+      </section>
+
+      <!-- COMPLETE SOLO RESULTS -->
+      <section id="screen-share" class="screen">
+        <p class="event-kicker" id="share-tournament"></p>
+        <h2 id="share-name">MIT RESULTAT</h2>
+        <p class="sub">FÆRDIG! DEL KODEN MED DEN, DER SAMLER RESULTATERNE.</p>
+        <table class="score-table" id="solo-results-table"></table>
+        <div class="async-form">
+          <label for="result-code">DIN RESULTATKODE</label>
+          <textarea id="result-code" class="result-code" rows="3" readonly spellcheck="false"></textarea>
+          <p id="share-status" class="form-status" role="status" aria-live="polite"></p>
+          <div class="menu">
+            <button class="pixel-btn primary" data-action="copy-result" id="copy-result" disabled>KOPIÉR KODE</button>
+            <button class="pixel-btn" data-action="download-result" id="download-result" disabled>GEM SOM FIL</button>
+            <button class="pixel-btn" data-action="sign-result" id="retry-sign" hidden>PRØV IGEN</button>
+          </div>
+        </div>
+        <div class="menu">
+          <button class="pixel-btn" data-action="open-collector">SAML RESULTATER</button>
+          <button class="pixel-btn" data-action="to-title">TIL FORSIDEN</button>
+        </div>
+      </section>
+
+      <!-- COMBINE SHARED RESULT CODES -->
+      <section id="screen-collect" class="screen">
+        <h2>SAML RESULTATER</h2>
+        <p class="sub">INDSÆT VENNERNES KODER. ÉN KODE PR. LINJE.</p>
+        <form id="collect-form" class="async-form">
+          <label for="import-codes">RESULTATKODER</label>
+          <textarea id="import-codes" class="result-code" rows="4" maxlength="100000" spellcheck="false" required></textarea>
+          <button class="pixel-btn primary" id="import-results" type="submit">TILFØJ RESULTATER</button>
+        </form>
+        <p id="collect-status" class="form-status" role="status" aria-live="polite"></p>
+        <p class="small" id="collected-tournament"></p>
+        <ul id="collected-players" class="collected-players" aria-label="Modtagne resultater"></ul>
+        <p class="small">PLACERINGER OPDATERES, NÅR FLERE SPILLERE TILFØJES.</p>
+        <div class="menu">
+          <button class="pixel-btn primary" data-action="show-collected" id="show-collected" disabled>VIS STILLING</button>
+          <button class="pixel-btn" data-action="add-own-result" id="add-own-result" hidden>TILFØJ MIN KODE</button>
+          <button class="pixel-btn" data-action="to-title">TILBAGE</button>
+        </div>
+      </section>
+
+      <!-- DIRECT GAME PRACTICE -->
+      <section id="screen-practice" class="screen" hidden>
+        <h2>TEST ET SPIL</h2>
+        <p class="sub">VÆLG EN DISCIPLIN OG START DIREKTE. PRØV IGEN ELLER SKIFT SPIL NÅR SOM HELST.</p>
+        <div id="practice-games" class="practice-games" aria-label="Vælg et spil"></div>
+        <p class="small">ØVELSER TÆLLER IKKE MED I DIT TURNERINGSRESULTAT.</p>
+        <button class="pixel-btn" data-action="to-title">HOVEDMENU</button>
+      </section>
+
+      <!-- EVENT INTRO -->
+      <section id="screen-intro" class="screen">
+        <p class="event-kicker" id="intro-kicker">DISCIPLIN 1 / 7</p>
+        <h2 id="intro-name">MINIGOLF</h2>
+        <p class="event-desc" id="intro-desc"></p>
+        <p class="event-meta" id="intro-meta"></p>
+        <div class="player-order" id="intro-order"></div>
+        <button class="pixel-btn primary" data-action="begin-event">KOM SÅ</button>
+      </section>
+
+      <!-- TURN / PLAY -->
+      <section id="screen-play" class="screen">
+        <header class="play-header">
+          <div>
+            <span class="play-event" id="play-event">MINIGOLF</span>
+            <span class="play-round" id="play-round"></span>
+          </div>
+          <div class="play-player">
+            <span class="play-player-name" id="play-player">SPILLER</span>
+            <span class="play-stats" id="play-stats"></span>
+          </div>
+        </header>
+        <div id="game-root">
+          <canvas id="game-canvas" width="640" height="400" tabindex="-1"></canvas>
+          <div id="game-hud"></div>
+        </div>
+        <div id="game-hint" class="game-hint"></div>
+        <div id="practice-controls" class="menu" hidden>
+          <button class="pixel-btn small" data-action="practice-replay">PRØV IGEN</button>
+          <button class="pixel-btn small" data-action="open-practice">VÆLG SPIL</button>
+        </div>
+        <div id="turn-overlay" class="turn-overlay hidden">
+          <div class="turn-card">
+            <p class="turn-kicker">DIT SPIL</p>
+            <h2 id="turn-name">SPILLER</h2>
+            <p class="turn-sub">GØR DIG KLAR</p>
+            <button class="pixel-btn primary" data-action="start-turn">JEG ER KLAR</button>
+          </div>
+        </div>
+        <div id="game-done-overlay" class="turn-overlay hidden">
+          <div class="turn-card">
+            <p class="turn-kicker" id="done-kicker">FÆRDIG</p>
+            <h2 id="done-result">—</h2>
+            <p class="turn-sub" id="done-detail"></p>
+            <button class="pixel-btn primary" data-action="continue-game">NÆSTE DISCIPLIN</button>
+            <div id="practice-result-controls" class="menu" hidden>
+              <button class="pixel-btn primary" data-action="practice-replay-result">PRØV IGEN</button>
+              <button class="pixel-btn" data-action="practice-choose-result">VÆLG SPIL</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINAL -->
+      <section id="screen-final" class="screen">
+        <p class="event-kicker">SLUTSTILLING</p>
+        <h2>ØL 2026</h2>
+        <div id="podium"></div>
+        <table class="score-table" id="final-table"></table>
+        <div id="loser-banner" class="loser-banner">
+          <p class="loser-kicker">DEN STORE TABER</p>
+          <h2 id="loser-name">—</h2>
+          <p class="loser-sub" id="loser-sub"></p>
+        </div>
+        <div class="menu">
+          <button class="pixel-btn" data-action="solo-setup">SPIL SPILLET</button>
+          <button class="pixel-btn" data-action="open-collector" id="final-collect">TILFØJ FLERE RESULTATER</button>
+          <button class="pixel-btn" data-action="to-title">HOVEDMENU</button>
+        </div>
+      </section>
+
+    </div>
+    <div class="scanlines"></div>
+  </div>
+
+  <script src="js/retro.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/bob-physics.js"></script>
+  <script src="js/events/minigolf.js"></script>
+  <script src="js/events/freethrows.js"></script>
+  <script src="js/events/stones.js"></script>
+  <script src="js/events/water.js"></script>
+  <script src="js/events/frisbee.js"></script>
+  <script src="js/events/boccia.js"></script>
+  <script src="js/events/bob.js"></script>
+  <script src="js/result-codes.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

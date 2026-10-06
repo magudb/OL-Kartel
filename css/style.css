@@ -1,0 +1,581 @@
+/* ØL 2026 Sommerlege — C64 / Summer Games retro shell */
+
+:root {
+  --c64-border: #7c70da;
+  --c64-bg: #3e31a2;
+  --c64-deep: #1a1260;
+  --c64-black: #0d0830;
+  --c64-white: #ffffff;
+  --c64-cyan: #95f4f6;
+  --c64-yellow: #ffff54;
+  --c64-orange: #f5a05a;
+  --c64-red: #e05555;
+  --c64-green: #6de66d;
+  --c64-purple: #b4a7ff;
+  --pixel-shadow: 3px 3px 0 var(--c64-black);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  background: var(--c64-black);
+  color: var(--c64-white);
+  font-family: "Courier New", Courier, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  overflow: hidden;
+}
+
+#crt {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at center, var(--c64-bg) 0%, var(--c64-deep) 70%, var(--c64-black) 100%);
+  padding: 16px;
+}
+
+#app {
+  width: min(920px, 100%);
+  height: min(640px, 100%);
+  background: var(--c64-bg);
+  border: 6px solid var(--c64-border);
+  box-shadow: 0 0 0 6px var(--c64-black), 0 0 40px rgba(124, 112, 218, 0.35);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.scanlines {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  z-index: 50;
+  opacity: 0.45;
+}
+
+/* Screens */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  padding: 24px 28px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.screen h1, .screen h2 {
+  color: var(--c64-yellow);
+  text-shadow: var(--pixel-shadow);
+  letter-spacing: 0.12em;
+}
+
+.screen h1 { font-size: clamp(22px, 4vw, 36px); }
+.screen h2 { font-size: clamp(18px, 3vw, 28px); }
+
+.sub, .footer-hint, .event-meta, .event-desc, .howto-body, .game-hint {
+  color: var(--c64-cyan);
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 56ch;
+}
+
+.footer-hint {
+  margin-top: 8px;
+  color: var(--c64-purple);
+  font-size: 11px;
+}
+
+.event-kicker {
+  color: var(--c64-orange);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.event-desc { font-size: 14px; color: var(--c64-white); }
+.highlight { color: var(--c64-yellow); }
+.small { font-size: 11px; color: var(--c64-purple); }
+
+.howto-body {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid var(--c64-border);
+  padding: 16px 18px;
+  margin-bottom: 8px;
+}
+
+.howto-body hr {
+  border: none;
+  border-top: 2px dashed var(--c64-purple);
+  margin: 12px 0;
+}
+
+/* Title art */
+.title-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.title-beer {
+  font-size: clamp(48px, 10vw, 84px);
+  color: var(--c64-yellow);
+  text-shadow: 5px 5px 0 var(--c64-orange), 10px 10px 0 var(--c64-black);
+  letter-spacing: 0.08em;
+  animation: bob 1.6s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.tagline {
+  color: var(--c64-green);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+/* Buttons */
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.pixel-btn {
+  appearance: none;
+  border: 3px solid var(--c64-white);
+  background: var(--c64-deep);
+  color: var(--c64-white);
+  font: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 12px 22px;
+  cursor: pointer;
+  box-shadow: var(--pixel-shadow);
+  transition: transform 0.05s ease;
+}
+
+.pixel-btn:hover {
+  background: var(--c64-border);
+  color: var(--c64-yellow);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--c64-black);
+}
+
+.pixel-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pixel-btn.primary {
+  background: var(--c64-yellow);
+  color: var(--c64-black);
+  border-color: var(--c64-white);
+}
+
+.pixel-btn.primary:hover {
+  background: var(--c64-green);
+  color: var(--c64-black);
+}
+
+.pixel-btn.small {
+  padding: 6px 14px;
+  font-size: 16px;
+  min-width: 44px;
+}
+
+/* Direct game practice */
+#screen-practice { justify-content: flex-start; }
+#screen-practice > * { flex-shrink: 0; }
+
+.practice-games {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(660px, 100%);
+}
+
+.practice-game {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.practice-game .small { letter-spacing: 0.02em; }
+
+@media (max-width: 520px) {
+  .practice-games { grid-template-columns: 1fr; gap: 8px; }
+  .practice-game { padding: 10px 12px; }
+  #practice-result-controls { flex-direction: column; }
+}
+
+.player-order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 6px 0;
+}
+
+.player-chip {
+  background: var(--c64-deep);
+  border: 2px solid var(--c64-purple);
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--c64-cyan);
+}
+
+.player-chip.current {
+  border-color: var(--c64-yellow);
+  color: var(--c64-yellow);
+}
+
+/* Independent play and shared result codes */
+#screen-solo, #screen-share, #screen-collect, #screen-final {
+  justify-content: flex-start;
+}
+
+.async-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(560px, 100%);
+  text-align: left;
+}
+
+.async-form label {
+  color: var(--c64-yellow);
+  font-size: 12px;
+}
+
+.async-form input, .async-form textarea {
+  width: 100%;
+  background: var(--c64-deep);
+  border: 2px solid var(--c64-purple);
+  color: var(--c64-white);
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.async-form input:focus, .async-form textarea:focus {
+  outline: 2px solid var(--c64-yellow);
+  outline-offset: 2px;
+}
+
+.async-form input { text-transform: uppercase; }
+
+.result-code {
+  text-transform: none;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+  resize: vertical;
+  font-size: 11px !important;
+}
+
+.form-status {
+  min-height: 1em;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c64-cyan);
+  overflow-wrap: anywhere;
+}
+
+.form-status.error { color: var(--c64-red); }
+
+.collected-players {
+  list-style: none;
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collected-players li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 2px solid var(--c64-purple);
+  padding: 8px 12px;
+  color: var(--c64-green);
+  font-size: 12px;
+}
+
+#screen-share > *, #screen-collect > *, #screen-final > * { flex-shrink: 0; }
+
+#screen-share .score-table { margin: 0; }
+#screen-share .score-table td, #screen-share .score-table th { padding: 5px 10px; }
+
+/* Play screen */
+#screen-play {
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.play-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.play-event { color: var(--c64-yellow); margin-right: 10px; }
+.play-round { color: var(--c64-purple); }
+.play-player-name { color: var(--c64-green); margin-right: 10px; }
+.play-stats { color: var(--c64-cyan); }
+
+#game-root {
+  position: relative;
+  width: min(640px, 100%);
+  background: var(--c64-black);
+  border: 3px solid var(--c64-white);
+  box-shadow: var(--pixel-shadow);
+  flex-shrink: 0;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: var(--c64-black);
+}
+
+#game-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-size: 11px;
+  color: var(--c64-cyan);
+}
+
+.game-hint {
+  min-height: 2.4em;
+  text-align: center;
+  color: var(--c64-yellow);
+  font-size: 12px;
+}
+
+/* Overlays */
+.turn-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 8, 48, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.turn-overlay.hidden { display: none; }
+
+.turn-card {
+  background: var(--c64-bg);
+  border: 4px solid var(--c64-yellow);
+  box-shadow: 6px 6px 0 var(--c64-black);
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.turn-kicker {
+  color: var(--c64-orange);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.turn-card h2 {
+  color: var(--c64-yellow);
+  font-size: 28px;
+}
+
+.turn-sub {
+  color: var(--c64-cyan);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+/* Score tables */
+.score-table {
+  border-collapse: collapse;
+  width: min(520px, 100%);
+  margin: 8px 0 12px;
+  font-size: 13px;
+}
+
+.score-table th,
+.score-table td {
+  border: 2px solid var(--c64-border);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.score-table th {
+  background: var(--c64-deep);
+  color: var(--c64-yellow);
+  font-weight: normal;
+}
+
+.score-table td { background: rgba(0, 0, 0, 0.18); }
+.score-table tr.winner td { color: var(--c64-green); }
+.score-table tr.loser td { color: var(--c64-red); }
+.score-table tr.me td {
+  outline: 2px solid var(--c64-yellow);
+  color: var(--c64-yellow);
+}
+
+.score-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Podium */
+#podium {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 6px 0 4px;
+  min-height: 120px;
+}
+
+.podium-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 90px;
+}
+
+.podium-block {
+  width: 100%;
+  background: var(--c64-deep);
+  border: 3px solid var(--c64-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c64-yellow);
+  font-size: 22px;
+}
+
+.podium-block.p1 { height: 100px; background: var(--c64-yellow); color: var(--c64-black); border-color: var(--c64-white); }
+.podium-block.p2 { height: 72px; }
+.podium-block.p3 { height: 52px; }
+
+.podium-name {
+  font-size: 11px;
+  color: var(--c64-cyan);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium-pts {
+  font-size: 11px;
+  color: var(--c64-green);
+}
+
+/* Loser banner */
+.loser-banner {
+  margin-top: 8px;
+  padding: 14px 22px;
+  border: 4px dashed var(--c64-red);
+  background: rgba(224, 85, 85, 0.12);
+  width: min(520px, 100%);
+}
+
+.loser-kicker {
+  color: var(--c64-red);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  margin-bottom: 4px;
+}
+
+.loser-banner h2 {
+  color: var(--c64-red);
+  font-size: 32px;
+  text-shadow: 3px 3px 0 var(--c64-black);
+}
+
+.loser-sub {
+  color: var(--c64-orange);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Canvas-side helpers drawn as HTML when needed */
+#game-hud .hud-top {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#game-hud .power-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 14px;
+  border: 2px solid var(--c64-white);
+  background: var(--c64-deep);
+}
+
+#game-hud .power-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, var(--c64-green), var(--c64-yellow), var(--c64-red));
+}
+
+/* Scroll if tiny viewport */
+@media (max-height: 700px) {
+  #app { height: 100%; border-width: 4px; }
+  .screen { padding: 14px; gap: 10px; }
+  .title-beer { font-size: 48px; }
+}
